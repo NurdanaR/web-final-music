@@ -28,7 +28,7 @@ async function register() {
         alert(data.message);
     }
 }
-
+//kjk
 async function login() {
     const email = document.getElementById('loginEmail').value;
     const password = document.getElementById('loginPassword').value;
