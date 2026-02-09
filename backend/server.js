@@ -38,7 +38,7 @@ app.get('/blogs/all', async (req, res) => {
     const blogs = await Blog.find().populate('author', 'username').sort({createdAt:-1});
     res.json(blogs);
 });
-
+//ук
 app.delete('/blogs/:id', authMiddleware, async (req, res) => {
     const blog = await Blog.findById(req.params.id);
     if (blog.author.toString() !== req.user.id) return res.status(403).send();
