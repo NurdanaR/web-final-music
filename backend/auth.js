@@ -4,7 +4,7 @@ const bcrypt = require('bcrypt');
 const Validator = require('validatorjs');
 const {User} = require('./db');
 
-const secret = process.env.JWT_SECRET_KEY || process.env.jwt_secret_key;
+const secret = process.env.JWT_SECRET || process.env.jwt_secret_key;
 
 const authMiddleware = async (req, res, next) => {
     const token = req.headers.authorization?.split(' ')[1];
