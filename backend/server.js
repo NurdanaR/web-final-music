@@ -1,54 +1,80 @@
-require('dotenv').config();
-const express = require('express');
-const path = require('path');
-const {authMiddleware, register, login} = require('./auth');
-const {User, Blog, Comment} = require('./db');
-const {getMusicData} = require('./api');
+import 'dotenv/config';
+
+import express from 'express';
+import cors from 'cors';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import connectDB from './config/db.js';
+
+// Route Imports
+import authRoutes from './routes/auth.js';
+import musicRoutes from './routes/music.js';
+import favoritesRoutes from './routes/favorites.js';
+
+// Setup __dirname for ES Modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Load environment variables
+
+
+// Connect to database
+connectDB();
 
 const app = express();
+
+// --- Middleware ---
+app.use(cors());
 app.use(express.json());
-app.use(express.static('public'));
+app.use(express.urlencoded({ extended: true }));
 
-app.post('/register', register);
-app.post('/login', login);
+// --- API Routes ---
+app.use('/api/auth', authRoutes);
+app.use('/api/music', musicRoutes);
+app.use('/api/favorites', favoritesRoutes);
 
-app.get('/users/profile', authMiddleware, async (req, res) => {
-    const user = await User.findById(req.user.id).select('-password');
-    res.json(user);
+// Health check endpoint
+app.get('/api/health', (req, res) => {
+  res.json({
+    success: true,
+    message: 'Music Platform API is running',
+    timestamp: new Date().toISOString()
+  });
 });
 
-app.post('/blogs', authMiddleware, async (req, res) => {
-    try {
-        const {title, text, songName} = req.body;
-        const songData = await getMusicData(songName);
-        const blog = new Blog({title, text, song: songData, author: req.user.id});
-        await blog.save();
-        res.status(201).json(blog);
-    } catch (error) {
-        res.status(500).json({message: error.message});
-    }
+// --- Frontend Serving ---
+// This serves all files in the 'public' folder (HTML, CSS, JS)
+// Note: Adjusted path to look for 'public' relative to the project root
+app.use(express.static(path.join(__dirname, '../public')));
+
+// SPA support: redirection to index.html for any non-API routes
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public', 'index.html'));
 });
 
-app.get('/blogs', authMiddleware, async (req, res) => {
-    const blogs = await Blog.find({author: req.user.id}).populate('author', 'username');
-    res.json(blogs);
+// --- Error Handling ---
+
+// 404 handler (for API routes that don't exist)
+app.use('/api/*', (req, res) => {
+  res.status(404).json({
+    success: false,
+    message: 'API Route not found'
+  });
 });
 
-app.get('/blogs/all', async (req, res) => {
-    const blogs = await Blog.find().populate('author', 'username').sort({createdAt:-1});
-    res.json(blogs);
-});
-//укjh
-app.delete('/blogs/:id', authMiddleware, async (req, res) => {
-    const blog = await Blog.findById(req.params.id);
-    if (blog.author.toString() !== req.user.id) return res.status(403).send();
-    await Blog.findByIdAndDelete(req.params.id);
-    res.json({success: true});
-});
-
+// Global Error handler
 app.use((err, req, res, next) => {
-    res.status(500).json({message: err.message});
+  console.error(err.stack);
+  res.status(500).json({
+    success: false,
+    message: err.message || 'Internal server error'
+  });
 });
 
-app.listen(process.env.PORT || 3000);
-//sc
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+  console.log(`Frontend: http://localhost:${PORT}`);
+  console.log(`Health check: http://localhost:${PORT}/api/health`);
+});
