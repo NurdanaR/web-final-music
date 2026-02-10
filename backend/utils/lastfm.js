@@ -9,59 +9,54 @@ class LastFMService {
   }
 
   async makeRequest(params) {
-  try {
-    const config = {
-      params: {
-        ...params,
-        api_key: this.apiKey,
-        format: 'json'
-      }
-    };
-    
-    // DEBUG LOG: Copy this URL from your terminal into a browser to test it
-    console.log(`Last.fm Request: ${LASTFM_BASE_URL}?method=${params.method}&track=${encodeURIComponent(params.track || '')}&api_key=${this.apiKey}&format=json`);
-    const response = await axios.get(LASTFM_BASE_URL, config);
-    return response.data;
-  } catch (error) {
+    try {
+      const config = {
+        params: {
+          ...params,
+          api_key: this.apiKey,
+          format: 'json'
+        }
+      };
+      
+      const response = await axios.get(LASTFM_BASE_URL, config);
+      return response.data;
+    } catch (error) {
       throw new Error(error.response?.data?.message || 'Last.fm API error');
     }
   }
 
-  // Search tracks
- async searchTracks(query, limit = 20, page = 1) {
-  const data = await this.makeRequest({
-    method: 'track.search',
-    track: query,
-    limit,
-    page
-  });
-  // Last.fm nesting is results -> trackmatches -> track (array)
-  return data.results?.trackmatches?.track || [];
-}
-// Search artists
-async searchArtists(query, limit = 20, page = 1) {
-  const data = await this.makeRequest({
-    method: 'artist.search',
-    artist: query,
-    limit,
-    page
-  });
-  // Artist nesting: results -> artistmatches -> artist
-  return data.results?.artistmatches?.artist || [];
-}
+  async searchTracks(query, limit = 20, page = 1) {
+    const data = await this.makeRequest({
+      method: 'track.search',
+      track: query,
+      limit,
+      page
+    });
+    
+    return data.results?.trackmatches?.track || [];
+  }
 
-// Search albums
-async searchAlbums(query, limit = 20, page = 1) {
-  const data = await this.makeRequest({
-    method: 'album.search',
-    album: query,
-    limit,
-    page
-  });
-  // Album nesting: results -> albummatches -> album
-  return data.results?.albummatches?.album || [];
-}
-  // Get track info
+  async searchArtists(query, limit = 20, page = 1) {
+    const data = await this.makeRequest({
+      method: 'artist.search',
+      artist: query,
+      limit,
+      page
+    });
+
+    return data.results?.artistmatches?.artist || [];
+  }
+
+  async searchAlbums(query, limit = 20, page = 1) {
+    const data = await this.makeRequest({
+      method: 'album.search',
+      album: query,
+      limit,
+      page
+    });
+    return data.results?.albummatches?.album || [];
+  }
+
   async getTrackInfo(artist, track, mbid = null) {
     const params = {
       method: 'track.getInfo'
@@ -78,7 +73,6 @@ async searchAlbums(query, limit = 20, page = 1) {
     return data.track;
   }
 
-  // Get artist info
   async getArtistInfo(artist, mbid = null) {
     const params = {
       method: 'artist.getInfo'
@@ -94,7 +88,6 @@ async searchAlbums(query, limit = 20, page = 1) {
     return data.artist;
   }
 
-  // Get album info
   async getAlbumInfo(artist, album, mbid = null) {
     const params = {
       method: 'album.getInfo'
@@ -111,32 +104,24 @@ async searchAlbums(query, limit = 20, page = 1) {
     return data.album;
   }
 
-  // Get top tracks
-  // In LastFMService.js
-
-  // Get top tracks
   async getTopTracks(limit = 50, page = 1) {
     const data = await this.makeRequest({
       method: 'chart.getTopTracks',
       limit,
       page
     });
-    // FIX: Return the array directly
     return data.tracks?.track || [];
   }
 
-  // Get top artists
   async getTopArtists(limit = 50, page = 1) {
     const data = await this.makeRequest({
       method: 'chart.getTopArtists',
       limit,
       page
     });
-    // FIX: Return the array directly
     return data.artists?.artist || [];
   }
 
-  // Get artist top tracks
   async getArtistTopTracks(artist, mbid = null, limit = 10) {
     const params = {
       method: 'artist.getTopTracks',
@@ -153,7 +138,6 @@ async searchAlbums(query, limit = 20, page = 1) {
     return data.toptracks;
   }
 
-  // Get artist top albums
   async getArtistTopAlbums(artist, mbid = null, limit = 10) {
     const params = {
       method: 'artist.getTopAlbums',
@@ -170,7 +154,6 @@ async searchAlbums(query, limit = 20, page = 1) {
     return data.topalbums;
   }
 
-  // Get similar artists
   async getSimilarArtists(artist, mbid = null, limit = 10) {
     const params = {
       method: 'artist.getSimilar',
@@ -187,7 +170,6 @@ async searchAlbums(query, limit = 20, page = 1) {
     return data.similarartists;
   }
 
-  // Get similar tracks
   async getSimilarTracks(artist, track, mbid = null, limit = 10) {
     const params = {
       method: 'track.getSimilar',
@@ -205,13 +187,11 @@ async searchAlbums(query, limit = 20, page = 1) {
     return data.similartracks;
   }
 
-  // Get album tracks
   async getAlbumTracks(artist, album, mbid = null) {
     const albumInfo = await this.getAlbumInfo(artist, album, mbid);
     return albumInfo.tracks;
   }
 
-  // Search by tag
   async getTopTracksByTag(tag, limit = 50, page = 1) {
     const data = await this.makeRequest({
       method: 'tag.getTopTracks',
@@ -242,7 +222,6 @@ async searchAlbums(query, limit = 20, page = 1) {
     return data.albums;
   }
 
-  // Get top tags
   async getTopTags() {
     const data = await this.makeRequest({
       method: 'tag.getTopTags'

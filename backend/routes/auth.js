@@ -6,7 +6,6 @@ import { validate } from '../middleware/validation.js';
 
 const router = express.Router();
 
-// Validation rules
 const registerValidation = [
   body('username')
     .trim()
@@ -44,7 +43,6 @@ const updateProfileValidation = [
     .withMessage('Please provide a valid email')
 ];
 
-// Routes
 router.post('/register', registerValidation, validate, register);
 router.post('/login', loginValidation, validate, login);
 router.get('/me', authenticate, getMe);

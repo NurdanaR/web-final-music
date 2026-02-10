@@ -1,6 +1,5 @@
 import User from '../models/user.js';
 
-// Add to favorites
 export const addFavorite = async (req, res) => {
   try {
     const { type, name, artist, mbid, image, url } = req.body;
@@ -21,7 +20,6 @@ export const addFavorite = async (req, res) => {
     
     const user = await User.findById(req.user._id);
     
-    // Check if already in favorites
     const existingFavorite = user.favorites.find(
       fav => fav.type === type && fav.name === name && fav.artist === artist
     );
@@ -33,7 +31,6 @@ export const addFavorite = async (req, res) => {
       });
     }
     
-    // Add to favorites
     user.favorites.push({
       type,
       name,
@@ -60,7 +57,6 @@ export const addFavorite = async (req, res) => {
   }
 };
 
-// Remove from favorites
 export const removeFavorite = async (req, res) => {
   try {
     const { favoriteId } = req.params;
@@ -96,7 +92,6 @@ export const removeFavorite = async (req, res) => {
   }
 };
 
-// Get all favorites
 export const getFavorites = async (req, res) => {
   try {
     const { type } = req.query;
@@ -123,7 +118,6 @@ export const getFavorites = async (req, res) => {
   }
 };
 
-// Get recent searches
 export const getRecentSearches = async (req, res) => {
   try {
     const user = await User.findById(req.user._id);
@@ -142,7 +136,6 @@ export const getRecentSearches = async (req, res) => {
   }
 };
 
-// Clear recent searches
 export const clearRecentSearches = async (req, res) => {
   try {
     await User.findByIdAndUpdate(req.user._id, {

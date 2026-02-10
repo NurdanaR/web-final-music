@@ -12,10 +12,8 @@ import { validate } from '../middleware/validation.js';
 
 const router = express.Router();
 
-// All routes require authentication
 router.use(authenticate);
 
-// Validation rules
 const addFavoriteValidation = [
   body('type')
     .isIn(['track', 'artist', 'album'])
@@ -37,12 +35,10 @@ const addFavoriteValidation = [
     .trim()
 ];
 
-// Routes
 router.get('/', getFavorites);
 router.post('/', addFavoriteValidation, validate, addFavorite);
 router.delete('/:favoriteId', removeFavorite);
 
-// Recent searches
 router.get('/searches/recent', getRecentSearches);
 router.delete('/searches/recent', clearRecentSearches);
 

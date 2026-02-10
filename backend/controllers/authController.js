@@ -1,12 +1,10 @@
 import User from '../models/user.js';
 import { generateToken } from '../utils/jwt.js';
 
-// Register user
 export const register = async (req, res) => {
   try {
     const { username, email, password } = req.body;
     
-    // Check if user already exists
     const existingUser = await User.findOne({
       $or: [{ email }, { username }]
     });
@@ -20,14 +18,12 @@ export const register = async (req, res) => {
       });
     }
     
-    // Create user
     const user = await User.create({
       username,
       email,
       password
     });
     
-    // Generate token
     const token = generateToken(user._id);
     
     res.status(201).json({
@@ -50,12 +46,10 @@ export const register = async (req, res) => {
   }
 };
 
-// Login user
 export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
     
-    // Find user by email
     const user = await User.findOne({ email });
     
     if (!user) {
@@ -65,7 +59,6 @@ export const login = async (req, res) => {
       });
     }
     
-    // Check password
     const isMatch = await user.comparePassword(password);
     
     if (!isMatch) {
@@ -75,7 +68,6 @@ export const login = async (req, res) => {
       });
     }
     
-    // Generate token
     const token = generateToken(user._id);
     
     res.json({
@@ -98,7 +90,6 @@ export const login = async (req, res) => {
   }
 };
 
-// Get current user
 export const getMe = async (req, res) => {
   try {
     const user = await User.findById(req.user._id).select('-password');
@@ -117,7 +108,6 @@ export const getMe = async (req, res) => {
   }
 };
 
-// Update user profile
 export const updateProfile = async (req, res) => {
   try {
     const { username, email } = req.body;
@@ -126,7 +116,6 @@ export const updateProfile = async (req, res) => {
     if (username) updates.username = username;
     if (email) updates.email = email;
     
-    // Check if username or email already exists
     if (username || email) {
       const existingUser = await User.findOne({
         _id: { $ne: req.user._id },

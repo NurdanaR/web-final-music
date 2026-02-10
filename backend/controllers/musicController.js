@@ -1,7 +1,6 @@
 import lastfm from '../utils/lastfm.js';
 import User from '../models/user.js';
 
-// Search music
 export const search = async (req, res) => {
   try {
     const { q, type = 'track', limit = 20, page = 1 } = req.query;
@@ -32,8 +31,6 @@ export const search = async (req, res) => {
         });
     }
 
-    // Save search to user's recent searches if authenticated
-    // Save search to user's recent searches if authenticated
     if (req.user) {
       try {
         await User.findByIdAndUpdate(req.user._id, {
@@ -42,7 +39,7 @@ export const search = async (req, res) => {
               $each: [{
                 query: q,
                 type: type,
-                searchedAt: new Date() // Explicitly setting matches your schema field name
+                searchedAt: new Date()
               }],
               $slice: -10
             }
@@ -50,7 +47,6 @@ export const search = async (req, res) => {
         });
       } catch (saveError) {
         console.error("History Save Error:", saveError.message);
-        // We don't necessarily want to fail the whole search if history saving fails
       }
     }
 
@@ -66,7 +62,6 @@ export const search = async (req, res) => {
   }
 };
 
-// Get track info
 export const getTrackInfo = async (req, res) => {
   try {
     const { artist, track, mbid } = req.query;
@@ -92,7 +87,6 @@ export const getTrackInfo = async (req, res) => {
   }
 };
 
-// Get artist info
 export const getArtistInfo = async (req, res) => {
   try {
     const { artist, mbid } = req.query;
@@ -118,7 +112,6 @@ export const getArtistInfo = async (req, res) => {
   }
 };
 
-// Get album info
 export const getAlbumInfo = async (req, res) => {
   try {
     const { artist, album, mbid } = req.query;
@@ -144,46 +137,34 @@ export const getAlbumInfo = async (req, res) => {
   }
 };
 
-// Get top tracks
-// Get top tracks
-// controller.js example for Charts
-// controller.js
-
-// In controller.js
-
-// Get top tracks
 export const getTopTracks = async (req, res) => {
   try {
     const { limit = 50, page = 1 } = req.query;
-    // The service now returns [Array]
     const tracks = await lastfm.getTopTracks(limit, page);
 
     res.json({
       success: true,
-      data: tracks // Pass the array directly
+      data: tracks
     });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
 };
 
-// Get top artists
 export const getTopArtists = async (req, res) => {
   try {
     const { limit = 50, page = 1 } = req.query;
-    // The service now returns [Array]
     const artists = await lastfm.getTopArtists(limit, page);
 
     res.json({
       success: true,
-      data: artists // Pass the array directly
+      data: artists
     });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
 };
 
-// Get artist top tracks
 export const getArtistTopTracks = async (req, res) => {
   try {
     const { artist, mbid, limit = 10 } = req.query;
@@ -209,7 +190,6 @@ export const getArtistTopTracks = async (req, res) => {
   }
 };
 
-// Get artist top albums
 export const getArtistTopAlbums = async (req, res) => {
   try {
     const { artist, mbid, limit = 10 } = req.query;
@@ -235,7 +215,6 @@ export const getArtistTopAlbums = async (req, res) => {
   }
 };
 
-// Get similar artists
 export const getSimilarArtists = async (req, res) => {
   try {
     const { artist, mbid, limit = 10 } = req.query;
@@ -261,7 +240,6 @@ export const getSimilarArtists = async (req, res) => {
   }
 };
 
-// Get similar tracks
 export const getSimilarTracks = async (req, res) => {
   try {
     const { artist, track, mbid, limit = 10 } = req.query;
@@ -287,7 +265,6 @@ export const getSimilarTracks = async (req, res) => {
   }
 };
 
-// Get top tags
 export const getTopTags = async (req, res) => {
   try {
     const topTags = await lastfm.getTopTags();
@@ -304,7 +281,6 @@ export const getTopTags = async (req, res) => {
   }
 };
 
-// Get top tracks by tag
 export const getTopTracksByTag = async (req, res) => {
   try {
     const { tag, limit = 50, page = 1 } = req.query;
@@ -330,7 +306,6 @@ export const getTopTracksByTag = async (req, res) => {
   }
 };
 
-// Get top artists by tag
 export const getTopArtistsByTag = async (req, res) => {
   try {
     const { tag, limit = 50, page = 1 } = req.query;
@@ -356,7 +331,6 @@ export const getTopArtistsByTag = async (req, res) => {
   }
 };
 
-// Get top albums by tag
 export const getTopAlbumsByTag = async (req, res) => {
   try {
     const { tag, limit = 50, page = 1 } = req.query;

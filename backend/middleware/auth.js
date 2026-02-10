@@ -5,7 +5,6 @@ export const authenticate = async (req, res, next) => {
   try {
     let token;
     
-    // Check for token in Authorization header
     if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
       token = req.headers.authorization.split(' ')[1];
     }
@@ -17,7 +16,6 @@ export const authenticate = async (req, res, next) => {
       });
     }
     
-    // Verify token
     const decoded = verifyToken(token);
     
     if (!decoded) {
@@ -27,7 +25,6 @@ export const authenticate = async (req, res, next) => {
       });
     }
     
-    // Get user from token
     const user = await User.findById(decoded.id).select('-password');
     
     if (!user) {
@@ -47,7 +44,6 @@ export const authenticate = async (req, res, next) => {
   }
 };
 
-// Optional authentication - doesn't fail if no token
 export const optionalAuth = async (req, res, next) => {
   try {
     let token;
